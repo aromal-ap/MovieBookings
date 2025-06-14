@@ -73,6 +73,8 @@ public class SecurityConfig {
 				
 				//Allow authenticated users to access and delete profile
 				.requestMatchers("/api/profile/**").permitAll()
+				.requestMatchers("/api/profile/change-password").authenticated()
+
 							
 				.anyRequest().authenticated()
 				)
