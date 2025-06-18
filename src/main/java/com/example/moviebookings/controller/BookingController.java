@@ -20,6 +20,7 @@ import com.example.moviebookings.entity.Booking;
 import com.example.moviebookings.entity.User;
 import com.example.moviebookings.repository.UserRepository;
 import com.example.moviebookings.service.BookingService;
+import com.example.moviebookings.service.EmailService;
 import com.example.moviebookings.service.PdfGeneratorService;
 
 @RestController
@@ -33,6 +34,9 @@ public class BookingController {
 	private PdfGeneratorService pdfGeneratorService;
 	
 	@Autowired
+	private EmailService emailService;
+	
+	@Autowired
 	private UserRepository userRepository;
 	
 	@PostMapping("/user/{userId}/show/{showId}")
@@ -41,6 +45,13 @@ public class BookingController {
 			                                     @RequestBody List<Long> seatId){
 		
 		Booking booking=bookingService.createBooking(userId, showId, seatId);
+		
+		try {
+			ByteArrayInputStream pdf=pdfGeneratorService.generateBookingPdf(booking);
+	        emailService.sendBookingConfirmation(booking.getUser().getEmail(),pdf);		
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 		return ResponseEntity.ok(booking);
 	}
 	
